@@ -20,4 +20,5 @@ from django.urls import path, include  # ← ADD include HERE
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('ttgen.urls')),  # ← ADD THIS LINE
+    path('', include('accounts.urls')),   # login / logout  ← WAS MISSING
 ]

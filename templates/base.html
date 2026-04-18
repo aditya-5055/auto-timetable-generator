@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}TimetableGen{% endblock %}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+
+  <style>
+    /* ── Shell: full-height flex column so footer sticks to bottom ── */
+    .app-shell {
+      width: 100%;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Max-width wrappers ── */
+    .app-main,
+    .app-messages,
+    .app-footer-inner,
+    .app-nav-inner {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ── Main grows to fill remaining space ── */
+    .app-main-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-main {
+      padding-top: 64px;
+      padding-bottom: 80px;
+      flex: 1;
+    }
+
+    /* Messages sit just below the navbar */
+    .messages-container {
+      margin-top: 58px;
+    }
+
+    /* ── User / avatar styles ── */
+    .nav-user-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      text-decoration: none;
+      color: #fff;
+      padding: .45rem .7rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+    }
+
+    .nav-avatar,
+    .user-dropdown-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      background: #fbbf24;
+      color: #111827;
+    }
+
+    .user-dropdown-menu {
+      min-width: 260px;
+      border: 0;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .user-dropdown-header {
+      display: flex;
+      gap: .85rem;
+      align-items: center;
+      padding: .9rem 1rem;
+    }
+
+    .user-dropdown-name {
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .user-dropdown-email {
+      font-size: .82rem;
+      color: #6b7280;
+      word-break: break-word;
+    }
+
+    .user-dropdown-logout {
+      color: #dc2626;
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      background: #0d1117;
+      color: rgba(255,255,255,.55);
+      font-size: .85rem;
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 2.5rem 0 0;
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+
+    .site-footer .footer-brand-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.2px;
+    }
+
+    .site-footer .footer-brand-name .bi {
+      color: #f59e0b;
+    }
+
+    .site-footer .footer-tagline {
+      font-size: .8rem;
+      color: rgba(255,255,255,.4);
+      margin-top: .35rem;
+      line-height: 1.5;
+      max-width: 220px;
+    }
+
+    .site-footer .footer-col-title {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,.85);
+      margin-bottom: .85rem;
+    }
+
+    .site-footer .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+    }
+
+    .site-footer .footer-links a {
+      color: rgba(255,255,255,.5);
+      text-decoration: none;
+      font-size: .83rem;
+      transition: color .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .site-footer .footer-links a:hover {
+      color: #f59e0b;
+    }
+
+    .site-footer .footer-links a .bi {
+      font-size: .75rem;
+      opacity: .6;
+    }
+
+    .site-footer .footer-divider {
+      border-color: rgba(255,255,255,.07);
+      margin: 2rem 0 0;
+    }
+
+    .site-footer .footer-bottom {
+      padding: 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+
+    .site-footer .footer-bottom-copy {
+      font-size: .78rem;
+      color: rgba(255,255,255,.3);
+    }
+
+    .site-footer .footer-bottom-badges {
+      display: flex;
+      gap: .5rem;
+    }
+
+    .site-footer .footer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .72rem;
+      color: rgba(255,255,255,.35);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 50px;
+      padding: .2rem .65rem;
+    }
+
+    /* ── Tablet ── */
+    @media (max-width: 991.98px) {
+      .app-main {
+        padding-top: 64px;
+      }
+      .messages-container {
+        margin-top: 58px;
+      }
+      .navbar .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+      .navbar-collapse {
+        margin-top: .9rem;
+        padding: .9rem;
+        border-radius: 16px;
+        background: rgba(13,17,23,.98);
+      }
+      .navbar-nav {
+        align-items: stretch !important;
+        gap: .35rem !important;
+      }
+      .navbar .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .nav-user-btn {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .app-main.container-fluid,
+      .messages-container.container-fluid,
+      .site-footer .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+      .site-footer .footer-cols-row > [class*="col-"] {
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 575.98px) {
+      .app-main {
+        padding-top: 60px;
+        padding-bottom: 48px;
+      }
+      .messages-container {
+        margin-top: 54px;
+      }
+      .navbar-brand {
+        font-size: 1rem;
+      }
+      .nav-avatar,
+      .user-dropdown-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: .85rem;
+      }
+      .user-dropdown-menu {
+        min-width: 100%;
+      }
+      .site-footer {
+        padding-top: 2rem;
+        font-size: .82rem;
+      }
+      .site-footer .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .65rem;
+      }
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid px-4 app-nav-inner">
+      <a class="navbar-brand fw-bold" href="{% url 'index' %}">
+        <i class="bi bi-calendar3-week me-2"></i>TimetableGen
+      </a>
+
+      <button class="navbar-toggler border-0" type="button"
+              data-bs-toggle="collapse" data-bs-target="#navMain"
+              aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}"
+               href="{% url 'index' %}">Home</a>
+          </li>
+
+          {% if user.is_authenticated %}
+
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'admindash' %}active{% endif %}"
+                 href="{% url 'admindash' %}">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+              </a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-database me-1"></i>Data Entry
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                <li><h6 class="dropdown-header">Setup Steps</h6></li>
+                <li><a class="dropdown-item" href="{% url 'addDepts' %}"><i class="bi bi-building me-2"></i>1. Department</a></li>
+                <li><a class="dropdown-item" href="{% url 'addDivisions' %}"><i class="bi bi-people me-2"></i>2. Divisions</a></li>
+                <li><a class="dropdown-item" href="{% url 'addBatches' %}"><i class="bi bi-person-lines-fill me-2"></i>3. Batches</a></li>
+                <li><a class="dropdown-item" href="{% url 'addInstructors' %}"><i class="bi bi-person-badge me-2"></i>4. Instructors</a></li>
+                <li><a class="dropdown-item" href="{% url 'addRooms' %}"><i class="bi bi-door-open me-2"></i>5. Rooms</a></li>
+                <li><a class="dropdown-item" href="{% url 'addCourses' %}"><i class="bi bi-book me-2"></i>6. Courses</a></li>
+                <li><a class="dropdown-item" href="{% url 'addTimings' %}"><i class="bi bi-clock me-2"></i>7. Timings</a></li>
+                <li><a class="dropdown-item" href="{% url 'addSections' %}"><i class="bi bi-grid me-2"></i>8. Sections</a></li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'timetable' %}" class="btn btn-warning btn-sm fw-semibold ms-lg-1 px-3">
+                <i class="bi bi-lightning-charge me-1"></i>Generate
+              </a>
+            </li>
+
+            <li class="nav-item dropdown ms-lg-2">
+              <a class="nav-user-btn dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="nav-avatar">{{ user.username|slice:":1"|upper }}</span>
+                <span class="nav-username d-none d-lg-inline">{{ user.username }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                <li>
+                  <div class="user-dropdown-header">
+                    <div class="user-dropdown-avatar">{{ user.username|slice:":1"|upper }}</div>
+                    <div>
+                      <div class="user-dropdown-name">{{ user.username }}</div>
+                      <div class="user-dropdown-email">{{ user.email|default:"No email set" }}</div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <a class="dropdown-item user-dropdown-logout" href="{% url 'logout' %}">
+                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+          {% else %}
+
+            <li class="nav-item">
+              <a href="{% url 'login' %}" class="btn btn-outline-warning btn-sm px-3">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'signup' %}" class="btn btn-warning btn-sm px-3 fw-semibold">
+                <i class="bi bi-person-plus me-1"></i>Sign Up
+              </a>
+            </li>
+
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Flash messages ── -->
+  {% if messages %}
+  <div class="container-fluid px-4 messages-container app-messages">
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show py-2 mb-2" role="alert">
+      <i class="bi bi-{% if message.tags == 'success' %}check-circle-fill{% elif message.tags == 'error' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %} me-2"></i>{{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── Main content ── -->
+  <main class="container-fluid px-4 app-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="container-fluid px-4 app-footer-inner">
+
+      <div class="row footer-cols-row g-4 pb-2">
+
+        <!-- Brand column -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="footer-brand-name mb-2">
+            <i class="bi bi-calendar3-week me-2"></i>TimetableGen
+          </div>
+          <p class="footer-tagline">
+            Smart scheduling for engineering colleges. Save hours, eliminate conflicts, export instantly.
+          </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-6 col-sm-3 col-lg-2 offset-lg-1">
+          <div class="footer-col-title">Quick Links</div>
+          <ul class="footer-links">
+            <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i>Home</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'admindash' %}"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
+            <li><a href="{% url 'timetable' %}"><i class="bi bi-lightning-charge"></i>Generate</a></li>
+            {% else %}
+            <li><a href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i>Login</a></li>
+            <li><a href="{% url 'signup' %}"><i class="bi bi-person-plus"></i>Sign Up</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- Data Entry -->
+        {% if user.is_authenticated %}
+        <div class="col-6 col-sm-3 col-lg-2">
+          <div class="footer-col-title">Data Entry</div>
+          <ul class="footer-links">
+            <li><a href="{% url 'addDepts' %}"><i class="bi bi-building"></i>Departments</a></li>
+            <li><a href="{% url 'addDivisions' %}"><i class="bi bi-people"></i>Divisions</a></li>
+            <li><a href="{% url 'addInstructors' %}"><i class="bi bi-person-badge"></i>Instructors</a></li>
+            <li><a href="{% url 'addRooms' %}"><i class="bi bi-door-open"></i>Rooms</a></li>
+            <li><a href="{% url 'addCourses' %}"><i class="bi bi-book"></i>Courses</a></li>
+          </ul>
+        </div>
+        {% endif %}
+
+        <!-- More Setup -->
+        {% if user.is_authenticated %}
+        <div class="col-6 col-sm-3 col-lg-2">
+          <div class="footer-col-title">More Setup</div>
+          <ul class="footer-links">
+            <li><a href="{% url 'addBatches' %}"><i class="bi bi-person-lines-fill"></i>Batches</a></li>
+            <li><a href="{% url 'addTimings' %}"><i class="bi bi-clock"></i>Timings</a></li>
+            <li><a href="{% url 'addSections' %}"><i class="bi bi-grid"></i>Sections</a></li>
+          </ul>
+        </div>
+        {% endif %}
+
+      </div><!-- /row -->
+
+      <hr class="footer-divider"/>
+
+      <div class="footer-bottom app-footer-inner px-0">
+        <span class="footer-bottom-copy">
+          &copy; 2026 TimetableGen &mdash; Engineering Department. All rights reserved.
+        </span>
+        <div class="footer-bottom-badges">
+          <span class="footer-badge"><i class="bi bi-shield-check"></i> Conflict-Free</span>
+          <span class="footer-badge"><i class="bi bi-file-earmark-pdf"></i> PDF Export</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+</div><!-- /app-shell -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

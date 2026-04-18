@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Add Instructor — TimetableGen{% endblock %}
+{% block content %}
+<div class="row g-4">
+
+  <!-- ── ADD FORM ───────────────────────────────────────────────────── -->
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-dark text-white py-3 px-4">
+        <h6 class="mb-0 fw-semibold">
+          <i class="bi bi-person-badge me-2" style="color:#fbbf24;"></i>Add Instructor
+        </h6>
+      </div>
+      <div class="card-body px-4 py-4">
+
+        <!-- Info box -->
+        <div class="alert alert-info py-2 px-3 mb-3" style="font-size:.82rem;">
+          <i class="bi bi-info-circle me-1"></i>
+          <strong>Workload Limits</strong><br>
+          Set how many classes per week this teacher can handle. The generator
+          will respect these limits automatically.
+        </div>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Teacher ID -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="{{ form.uid.id_for_label }}">
+              <i class="bi bi-fingerprint me-1 text-secondary"></i>Teacher ID
+            </label>
+            {{ form.uid }}
+            {% if form.uid.errors %}
+              <div class="text-danger small mt-1">{{ form.uid.errors.as_text }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Full Name -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="{{ form.name.id_for_label }}">
+              <i class="bi bi-person me-1 text-secondary"></i>Full Name
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}
+              <div class="text-danger small mt-1">{{ form.name.errors.as_text }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Max Lectures per Week -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="{{ form.max_lectures_per_week.id_for_label }}">
+              <i class="bi bi-journal-text me-1 text-primary"></i>
+              Max Theory Lectures / Week
+            </label>
+            {{ form.max_lectures_per_week }}
+            <div class="form-text text-muted" style="font-size:.78rem;">
+              📖 How many theory lecture periods per week can this teacher teach?
+              <br><em>e.g. 3 = can teach at most 3 lecture slots per week total.</em>
+            </div>
+            {% if form.max_lectures_per_week.errors %}
+              <div class="text-danger small mt-1">{{ form.max_lectures_per_week.errors.as_text }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Max Labs per Week -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="{{ form.max_labs_per_week.id_for_label }}">
+              <i class="bi bi-flask me-1 text-success"></i>
+              Max Lab Batches / Week
+            </label>
+            {{ form.max_labs_per_week }}
+            <div class="form-text text-muted" style="font-size:.78rem;">
+              🔬 How many lab batch sessions per week can this teacher supervise?
+              <br><em>e.g. 3 = can handle up to 3 batches' lab sessions per week.</em>
+            </div>
+            {% if form.max_labs_per_week.errors %}
+              <div class="text-danger small mt-1">{{ form.max_labs_per_week.errors.as_text }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-dark w-100 fw-semibold mt-1">
+            <i class="bi bi-plus-circle me-2"></i>Save Instructor
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+      <a href="{% url 'addBatches' %}" class="btn btn-outline-secondary flex-fill">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </a>
+      <a href="{% url 'addRooms' %}" class="btn btn-outline-secondary flex-fill">
+        Next <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── EXISTING INSTRUCTORS TABLE ────────────────────────────────── -->
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 px-4">
+        <h6 class="mb-0 fw-semibold">Existing Instructors</h6>
+        <span class="badge bg-dark">{{ instructors.count }}</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th class="text-center">
+                <i class="bi bi-journal-text text-primary me-1"></i>
+                Max Lectures/Wk
+              </th>
+              <th class="text-center">
+                <i class="bi bi-flask text-success me-1"></i>
+                Max Labs/Wk
+              </th>
+              <th class="text-center">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for inst in instructors %}
+            <tr>
+              <td class="text-muted small">{{ forloop.counter }}</td>
+              <td><span class="badge bg-secondary font-monospace">{{ inst.uid }}</span></td>
+              <td>{{ inst.name }}</td>
+              <td class="text-center">
+                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-2">
+                  {{ inst.max_lectures_per_week }}
+                </span>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-2">
+                  {{ inst.max_labs_per_week }}
+                </span>
+              </td>
+              <td class="text-center">
+                <form method="post" action="{% url 'deleteinstructor' inst.pk %}"
+                      onsubmit="return confirm('Delete {{ inst.name }}?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-4 d-block mb-2 opacity-50"></i>
+                No instructors yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
