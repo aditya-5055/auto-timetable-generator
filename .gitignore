@@ -1,9 +1,44 @@
-venv/
-__pycache__/
-*.py[cod]
-*$py.class
-*.sqlite3
-.DS_Store
+# Dependencies
+node_modules/
+*/node_modules/
+**/node_modules/
+
+# Production builds
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment variables
 .env
+*.env
+**/.env
+**/.env.*
+!.env.example
+
+# Python & virtual environment (legacy)
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.sqlite3
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+debug.log
+logs/
+*.log
+
+# Editor & OS files
+.DS_Store
+**/.DS_Store
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
